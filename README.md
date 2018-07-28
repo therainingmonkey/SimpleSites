@@ -1,19 +1,19 @@
 # SimpleSites - A very simple static site generator
 
-## Plan:
 SimpleSites, when run in the root dir, assembles templates, inserts .md content
 and saves the output to the `public` directory.
 
+Templates can contain lua code which will be run inside {{ double curly brackets}}
 
-### How it works:
+The tables `content` and `templates` are accessible within code blocks,
 
-1. build a `templates` table and a `content` table, containing the processed output of each file
-2. for each file in `content`:
-	* open the corresponding file in `templates`
-	* split the text at `{{ }}`, execute the lua inbetween and insert it's string output
+++TODO++
+* Generate empty file structure / default templates
+* Copy `static` dir
 
 
-### Proposed file structure:
+
+### Example file structure:
 
 	root
 	| -- public
