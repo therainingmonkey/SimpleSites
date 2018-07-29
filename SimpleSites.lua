@@ -1,3 +1,4 @@
+#!/usr/bin/env lua
 -- TODO: Create a lockfile while we work
 
 local lfs = require "lfs"
@@ -24,6 +25,29 @@ local function deepcopy(orig)
 		copy = orig
 	end
 	return copy
+end
+
+-- Copies a file from `inpath` to `outpath`
+-- Holds whole file in memory, not good for huge files.
+local function copyfile(inpath, outpath)
+	local infile = io.open(inpath)
+	local outfile = io.open(outpath, "w")
+	outfile:write(infile:read("*all"))
+	infile:close()
+	outfile:close()
+end
+
+local function copydir(inpath, outpath)
+	for filename in lfs.dir(inpath) do
+		if filename ~= "." and filename ~= ".." then
+			if lfs.attributes(inpath.."/"..filename).mode == "directory" then
+				lfs.mkdir(outpath.."/"..filename)
+				copydir(inpath.."/"..filename, outpath.."/"..filename)
+			else
+				copyfile(inpath.."/"..filename, outpath.."/"..filename)
+			end
+		end
+	end
 end
 
 -- Reads files recursively from a folder and stores their contents in a table
@@ -133,6 +157,9 @@ end
 loaddir(rootpath.."/content", content)
 -- Load all the .html templates into the template table
 loaddir(rootpath.."/templates", templates)
+
+-- Copy over the `static` directory
+copydir(rootpath.."/static", rootpath.."/public")
 
 -- Render all content & save output
 recursive_render(content)

@@ -9,7 +9,6 @@ The tables `content` and `templates` are accessible within code blocks,
 
 ++TODO++
 * Generate empty file structure / default templates
-* Copy `static` dir
 
 
 
