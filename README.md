@@ -1,5 +1,13 @@
 # SimpleSites - A very simple static site generator
 
+## Requirements
+SimpleSites depends on luafilesystem and the discount markdown engine.
+On Debian you can install these with:
+`apt-get install lua-filesystem lua-discount`
+Or both are available through luarocks.
+
+
+## About
 SimpleSites, when run in the root dir, assembles templates, inserts .md content
 and saves the output to the `public` directory.
 
