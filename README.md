@@ -31,28 +31,28 @@ Writing         /public/index.html
 ```
 	root
 	| -- public
-	|		|--[final output .html]
+	|	|--[final output .html]
 	|
 	| -- content
-	|		| -- index.md
-	|		| -- posts
-	|		|		| -- post1.md
-	|		|		| -- post2.md
-	|		| -- about.md
+	|	| -- index.md
+	|	| -- posts
+	|	|	| -- post1.md
+	|	|	| -- post2.md
+	|	| -- about.md
 	|
 	| -- templates
-	|		| -- index.html
-	|		| -- _default.html
-	|		| -- posts
-	|		|		| -- _default.html
-	|		| -- head.html
-	|		| -- menubar.html
-	|		| -- footer.html
+	|	| -- index.html
+	|	| -- _default.html
+	|	| -- posts
+	|	|	| -- _default.html
+	|	| -- head.html
+	|	| -- menubar.html
+	|	| -- footer.html
 	|
 	| -- static
-	|		| -- style.css
-	|		| -- images
-	|		|		| -- catpic.jpg
+	|	| -- style.css
+	|	| -- images
+	|	|	| -- catpic.jpg
 ```
 
 
