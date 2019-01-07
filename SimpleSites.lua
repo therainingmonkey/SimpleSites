@@ -202,7 +202,8 @@ end
 
 -- Evaluate code blocks & assemble templates; then render markdown to HTML
 local function render(template_used, content_used)
-	local cursor = 0
+    
+    local cursor = 0
 	content['auto'] = content_used
 	repeat
 		-- find and run {{ template blocks }}
@@ -218,6 +219,7 @@ local function render(template_used, content_used)
 			
 			local success, output = pcall(block)
 			if success then
+                output = output or ""
 				local starttext = template_used:sub(1, blockstart-1)
 				local endtext = template_used:sub(blockend+1, -1)
 				template_used = starttext .. output .. endtext
@@ -239,7 +241,7 @@ end
 local function recursive_render(content_table, cursor)
 	cursor = cursor or {}
 	for k, v in pairs(content_table) do
-		if k ~= "auto" then -- "auto" changes depending which file we're rendering
+        if k ~= "auto" then -- "auto" changes depending which file we're rendering
 			if type(v) == "table" then
 				local newcursor = deepcopy(cursor)
 				table.insert(newcursor, k)
@@ -256,6 +258,10 @@ local function recursive_render(content_table, cursor)
 					end
 				end
 				local template = t_table[k] or default
+-- If there's a folder with the same name as our content.md, don't try to use the folder as a template
+                if type(template) == "table" then
+                    template = default
+                end
 				local rendered = render(template, v)
 
 				-- Write the rendered page to a file
