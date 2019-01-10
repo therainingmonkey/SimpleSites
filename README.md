@@ -29,7 +29,7 @@ Writing         /public/index.html
 ```
 
 ++TODO++
-* Something's funny with discount's rendering of tables and horizontal rules
+* Order the content table by file creation date
 * Lots more testing
 
 
