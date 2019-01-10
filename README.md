@@ -28,6 +28,8 @@ Writing         /public/index.html
 # Your site has been built! You should be able to serve directly from the /public directory.
 ```
 
+Find an example website built using SimpleSites [here](https://github.com/therainingmonkey/thecalamitywebsite).
+
 ++TODO++
 * Order the content table by file creation date
 * Lots more testing
