@@ -2,7 +2,7 @@
 -- TODO: Create a lockfile while we work
 
 local lfs = require "lfs"
-local parse_markdown = require "discount"
+local parse_markdown = require "markdown"
 
 -- The default files for a new project
 local DEFAULT_CONTENT = [[# Welcome!
@@ -225,7 +225,7 @@ local function render(template_used, content_used)
 				template_used = starttext .. output .. endtext
 			else
 				cursor = blockend
-				print("Error running code block: "..output.."\n"..block_string)
+				print("Error running code block: "..output.."\n"..block_string) -- DEBUG
 			end
 		else -- Bad lua in the code block, don't evaluate & leave as is.
 			cursor = blockend
@@ -263,7 +263,7 @@ local function recursive_render(content_table, cursor)
                     template = default
                 end
 				local rendered = render(template, v)
-
+                
 				-- Write the rendered page to a file
 				local path = ""
 				for _, dir in pairs(cursor) do
