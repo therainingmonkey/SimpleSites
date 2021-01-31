@@ -33,6 +33,7 @@ Find an example website built using SimpleSites [here](https://github.com/therai
 ++TODO++
 * Order the content table by file creation date
 * Lots more testing
+* Warning if content.md files don't have a #title, instead of crashing
 
 
 
