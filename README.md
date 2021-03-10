@@ -31,9 +31,7 @@ Writing         /public/index.html
 Find an example website built using SimpleSites [here](https://github.com/therainingmonkey/thecalamitywebsite).
 
 ++TODO++
-* Order the content table by file creation date
 * Lots more testing
-* Warning if content.md files don't have a #title, instead of crashing
 
 
 
@@ -72,7 +70,7 @@ Find an example website built using SimpleSites [here](https://github.com/therai
 {{ return templates.head }}
 {{ return templates.menubar }}
 
-{{ return content.auto --finds the matching .md based on filesystem }}
+{{ return content.auto.text --finds the matching .md based on filesystem }}
 
 {{
 	local output = ""
@@ -81,7 +79,7 @@ Find an example website built using SimpleSites [here](https://github.com/therai
 	
 	-- ### [<POST TITLE>](<URL>)\n<POST TEXT FOLLOWING POST TITLE UP TO 144 CHARS>
 	
-		output = output .. "### ["..post:match("#(.-)\n").."](".."./posts/"..name..".html)\n\t"..post:match("#.-\n(.*)"):sub(1, 144)
+		output = output .. "### ["..post.title.."](".."./posts/"..name..".html)\n\"..post.text:match("#.-\n(.*)"):sub(1, 144))
 		
 	end
 	
