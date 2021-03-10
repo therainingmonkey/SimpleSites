@@ -236,7 +236,19 @@ local function render(content, template, content_table, templates_table)
 		
 		if block then
 			-- Allow the block access to local tables
-			setfenv(block, {content=local_content_table, templates=templates_table, pairs=pairs})
+			setfenv(block, {
+				content=local_content_table,
+				templates=templates_table,
+				pairs=pairs,
+				ipairs=ipairs,
+				string=string,
+				tostring=tostring,
+				print=print,
+				tonumber=tonumber,
+				math=math,
+				table=table,
+				error=error,
+			})
 			
 			local success, output = pcall(block)
 			if success then
