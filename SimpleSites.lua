@@ -103,7 +103,7 @@ You can use regular <abbr title="Hypertext Markup Language">HTML</abbr> in marku
 
 local DEFAULT_TEMPLATE = [[<html>
 <head>
-<link rel="stylesheet" type="text/css" href="style.css">
+<link rel="stylesheet" type="text/css" href="static/style.css">
 <title> {{ return content.auto:match("#(.-)\n")  }} </title>
 <body>
 
@@ -115,6 +115,8 @@ local DEFAULT_TEMPLATE = [[<html>
 
 local DEFAULT_STYLESHEET = [[
 body {
+	margin: auto;
+	width: 80%;
 	font-family: Arial, sans-serif;
 }
 ]]
@@ -172,42 +174,7 @@ local function copydir(inpath, outpath)
 	end
 end
 
--- Reads files recursively from a folder and stores their contents in a table
--- rootdir should be the base dir to be loaded, out_table is the table to use
--- workingdir should be empty when first called (it's used in recursive calls)
--- local loaddir = function(rootdir, out_table, workingdir)
--- 	workingdir = workingdir or ""
--- 	local table_cursor = out_table
--- 	if workingdir:sub(-1,-1) ~= "/" then workingdir = workingdir .. "/" end
--- 	-- For each chunk of string split at `/`, eg. alice & bob in /alice/bob/
--- 	for dir in workingdir:gmatch("(.-)/") do
--- 		-- Build a list of dirs above the current one
--- 		if dir ~= "" and dir ~= "." and dir ~= ".." then
--- 			if not table_cursor[dir] then
--- 				table_cursor[dir] = {}
--- 			end
--- 			table_cursor = table_cursor[dir]
--- 		end
--- 	end
--- 	for filename in lfs.dir(rootdir .. workingdir) do
--- 		if filename ~= "." and filename ~= ".." then
--- 			local filepath = rootdir .. workingdir .. "/" .. filename
--- 			if lfs.attributes(filepath).mode == "directory" then
--- 				loaddir(rootdir, out_table, workingdir .. filename)
--- 			else
--- 				local handle = io.open(rootdir..workingdir.."/"..filename)
--- 			-- `filename:find("(.+)%.")` matches everything up to the final `.`
--- 			-- eg. `first_post` from `first_post.md`.
--- 			-- var `name` holds the key for the table element we're using.
--- 				local _, _, name = filename:find("(.+)%.")
--- 				table_cursor[name] = handle:read("*all")
--- 				handle:close()
--- 			end
--- 		end
--- 	end
--- end
-
--- local content = loaddir(rootpath..'/content/') -- DEBUG
+-- Loads the `content` or `templates` dirs into tables
 local function loaddir(dir, out_table)
 	local out_table = {}
 	for filename in lfs.dir(dir) do
@@ -366,7 +333,8 @@ local templates = loaddir(rootpath.."/templates")
 
 -- Copy over the `static` directory
 -- TODO: Copy static into public/static
-copydir(rootpath.."/static", rootpath.."/public")
+lfs.mkdir(rootpath..'/public/static')
+copydir(rootpath.."/static", rootpath.."/public/static")
 
 -- Render all content & save output
 recursive_render(content, templates)
