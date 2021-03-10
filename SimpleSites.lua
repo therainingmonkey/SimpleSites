@@ -35,17 +35,22 @@ the brackets) will be evaluated before it's inserted into the template. Don't
 put code blocks in your content `.md` files, it causes horrible, subtle and
 intermittent bugs.
 
-One HTML page is rendered for every `.md` file in the `content` directory and its subdirectories. Within whichever template is chosen to render the `.md` file,
-the contents of the `.md` file are available inside code blocks as
+One HTML page is rendered for every `.md` file in the `content` directory and
+its subdirectories. Within whichever template is chosen to render the `.md`
+file, the contents of the `.md` file are available inside code blocks as
 `content.auto`.
 
-Code blocks are evaluated and templates merged before markdown is parsed into HTML. This means that you can include markdown in your templates, but you can't indent any HTML in your templates or it'll be treated as a code block.
+Code blocks are evaluated and templates merged before markdown is parsed into
+HTML. This means that you can include markdown in your templates, but you can't
+indent any HTML in your templates or it'll be treated as a code block.
 
 ### Styling
 To change the style of your site, edit `static/style.css`.
 
 ## Markdown
-You can use [Discount](http://www.pell.portland.or.us/~orc/Code/markdown/) flavoured [markdown](https://en.wikipedia.org/wiki/Markdown) to add formatting. Discount uses [Smartypants](https://daringfireball.net/projects/smartypants/) substitutions. [Here](http://tedwise.com/markdown/) is a full guide to Discount markdown's syntax.
+You can use [Markdown](https://en.wikipedia.org/wiki/Markdown) to add formatting.
+Look at the difference between `index.md` and `index.html` to see how markdown
+renders into HTML.
 
 Here's a quick overview of markdown:
 
@@ -62,7 +67,8 @@ These will all be part of the same paragraph.
 ->This text will be centred.<-
 
 [This](www.example.com) will be a link to example.com
-So will [this][link1]. Look at the bottom to see the footnote-style link it references.
+So will [this][link1]. Look at the bottom of the markdown to see the
+footnote-style link it references.
 
 Images are very similar, but prefixed with a !
 ![My image text](static/image.png)
@@ -119,9 +125,10 @@ body {
 if arg[1] then
 	lfs.chdir(arg[1])
 end
+local rootpath = lfs.currentdir()
 
 local content, templates = {["auto"]=""}, {}
-local rootpath = lfs.currentdir()
+
 
 local function deepcopy(orig)
 	local orig_type = type(orig)
@@ -168,37 +175,62 @@ end
 -- Reads files recursively from a folder and stores their contents in a table
 -- rootdir should be the base dir to be loaded, out_table is the table to use
 -- workingdir should be empty when first called (it's used in recursive calls)
-local function loaddir(rootdir, out_table, workingdir)
-	workingdir = workingdir or ""
-	local table_cursor = out_table
-	if workingdir:sub(-1,-1) ~= "/" then workingdir = workingdir .. "/" end
-	-- For each chunk of string split at `/`, eg. alice & bob in /alice/bob/
-	for dir in workingdir:gmatch("(.-)/") do
-		-- Build a list of dirs above the current one
-		if dir ~= "" and dir ~= "." and dir ~= ".." then
-			if not table_cursor[dir] then
-				table_cursor[dir] = {}
-			end
-			table_cursor = table_cursor[dir]
+-- local loaddir = function(rootdir, out_table, workingdir)
+-- 	workingdir = workingdir or ""
+-- 	local table_cursor = out_table
+-- 	if workingdir:sub(-1,-1) ~= "/" then workingdir = workingdir .. "/" end
+-- 	-- For each chunk of string split at `/`, eg. alice & bob in /alice/bob/
+-- 	for dir in workingdir:gmatch("(.-)/") do
+-- 		-- Build a list of dirs above the current one
+-- 		if dir ~= "" and dir ~= "." and dir ~= ".." then
+-- 			if not table_cursor[dir] then
+-- 				table_cursor[dir] = {}
+-- 			end
+-- 			table_cursor = table_cursor[dir]
+-- 		end
+-- 	end
+-- 	for filename in lfs.dir(rootdir .. workingdir) do
+-- 		if filename ~= "." and filename ~= ".." then
+-- 			local filepath = rootdir .. workingdir .. "/" .. filename
+-- 			if lfs.attributes(filepath).mode == "directory" then
+-- 				loaddir(rootdir, out_table, workingdir .. filename)
+-- 			else
+-- 				local handle = io.open(rootdir..workingdir.."/"..filename)
+-- 			-- `filename:find("(.+)%.")` matches everything up to the final `.`
+-- 			-- eg. `first_post` from `first_post.md`.
+-- 			-- var `name` holds the key for the table element we're using.
+-- 				local _, _, name = filename:find("(.+)%.")
+-- 				table_cursor[name] = handle:read("*all")
+-- 				handle:close()
+-- 			end
+-- 		end
+-- 	end
+-- end
+
+-- local content = loaddir(rootpath..'/content/') -- DEBUG
+local function loaddir(dir, out_table)
+	local out_table = {}
+	for filename in lfs.dir(dir) do
+		if dir:sub(-1, -1) ~= '/' then
+			dir = dir .. '/'
 		end
-	end
-	for filename in lfs.dir(rootdir .. workingdir) do
-		if filename ~= "." and filename ~= ".." then
-			local filepath = rootdir .. workingdir .. "/" .. filename
-			if lfs.attributes(filepath).mode == "directory" then
-				loaddir(rootdir, out_table, workingdir .. filename)
+		if filename ~= '.' and filename ~= '..' then
+			local filepath = dir .. filename
+			if lfs.attributes(filepath).mode == 'directory' then
+				out_table[filename] = loaddir(filepath)
 			else
-				local handle = io.open(rootdir..workingdir.."/"..filename)
-			-- `filename:find("(.+)%.")` matches everything up to the final `.`
-			-- eg. `first_post` from `first_post.md`.
-			-- var `name` holds the key for the table element we're using.
+				--`filename:find("(.+)%.")` matches everything up to the final `.`
+				-- eg. `first_post` from `first_post.md`.
 				local _, _, name = filename:find("(.+)%.")
-				table_cursor[name] = handle:read("*all")
+				local handle = io.open(filepath)
+				out_table[name] = handle:read('*all')
 				handle:close()
 			end
 		end
 	end
+	return out_table
 end
+
 
 -- Evaluate code blocks & assemble templates; then render markdown to HTML
 local function render(template_used, content_used)
@@ -238,17 +270,17 @@ end
 
 -- Navigate the filesystem to match content to templates,
 -- using the nearest template in the tree; render templates with content
-local function recursive_render(content_table, cursor)
+local function recursive_render(content_table, templates_table, cursor)
 	cursor = cursor or {}
 	for k, v in pairs(content_table) do
         if k ~= "auto" then -- "auto" changes depending which file we're rendering
 			if type(v) == "table" then
 				local newcursor = deepcopy(cursor)
 				table.insert(newcursor, k)
-				recursive_render(v, newcursor)
+				recursive_render(v, templates_table, newcursor)
 			else
-				local t_table = deepcopy(templates)
-				local default = templates._default
+				local t_table = deepcopy(templates_table)
+				local default = templates_table._default
 				for _, i in pairs(cursor) do
 					if t_table[i] then
 						t_table = t_table[i]
@@ -258,6 +290,7 @@ local function recursive_render(content_table, cursor)
 					end
 				end
 				local template = t_table[k] or default
+				
 -- If there's a folder with the same name as our content.md, don't try to use the folder as a template
                 if type(template) == "table" then
                     template = default
@@ -326,12 +359,14 @@ if check_filesystem() ~= true then
 end
 
 -- Load all the content .md files into the content table
-loaddir(rootpath.."/content", content)
+local content = loaddir(rootpath.."/content")
+
 -- Load all the .html templates into the template table
-loaddir(rootpath.."/templates", templates)
+local templates = loaddir(rootpath.."/templates")
 
 -- Copy over the `static` directory
+-- TODO: Copy static into public/static
 copydir(rootpath.."/static", rootpath.."/public")
 
 -- Render all content & save output
-recursive_render(content)
+recursive_render(content, templates)
