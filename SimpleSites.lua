@@ -277,15 +277,15 @@ local function recursive_render(content_table, templates_table, cursor, content_
 				for _, i in pairs(cursor) do
 					if t_table[i] then
 						t_table = t_table[i]
-					end
-					if t_table["_default"] then
-						default = t_table["_default"]
+						if t_table._default then
+							default = t_table._default
+						end
 					end
 				end
 				local template = t_table[k] or default
 				
 -- If there's a folder with the same name as our content.md, don't try to use the folder as a template
-				if type(template) == "table" then
+				if not template._is_page then
 					template = default
 				end
 				local rendered = render(content, template, content_root, templates_table)
